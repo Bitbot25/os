@@ -8,7 +8,7 @@ size_t strlen(const char* str) {
 }
 
 void kern32(void) {
-    lgdt(0);
+    gdt_init();
 
     struct serial_dev com1;
     serial_init(&com1, PORT_COM1);
