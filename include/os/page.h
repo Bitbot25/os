@@ -63,6 +63,8 @@ struct pginfo {
 void pginfo(struct pginfo *info);
 void pginfo_debug(struct pginfo *info, string_t *buf);
 void pgclear(void);
+void pgmap(void *vaddr, void *paddr);
+void pgidentity(void);
 void pgenable(void);
 
 u64 make_sdesc(u32 base, u32 limit, u16 flags);

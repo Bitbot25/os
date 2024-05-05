@@ -49,26 +49,45 @@ void gdt_init(void) {
 
 void pgclear(void) {
     for (size_t i = 0; i < PAGEDIR_ENT; ++i) {
-        pagedir[i] = PE_PRESENT(0) | PE_RW(1) | PE_US(0);
+        pagedir[i] = 0x00;
     }
-}
-
-void ptalloc(u32 (**pagetbl)[PAGETBL_ENT]) {
-    if (pagetbl_used == PAGEDIR_ENT) {
-        panic("cannot allocate new page table");
-    }
-    *pagetbl = &pagetbl_alloc[++pagetbl_used];
 }
 
 void pgidentity(void) {
-    u32 (*pagetbl)[PAGETBL_ENT];
-    ptalloc(&pagetbl);
+    for (size_t addr = 0; addr < 10000000; addr += 0x1000) {
+        pgmap((void *)addr, (void *)addr);
+    }
+}
 
-    for (size_t i = 0; i < PAGETBL_ENT; ++i) {
-        (*pagetbl)[i] = (i * 0x1000) | PE_PRESENT(1) | PE_RW(1) | PE_US(0);
+void pgmap(void *vaddr, void *paddr) {
+    // PDE and PTE index is embedded in address
+    size_t pdindex = (size_t)vaddr >> 22; 
+    size_t ptindex = (size_t)paddr >> 12 & 0x03FF;
+
+    size_t offset = (size_t)vaddr & 0xFFF;
+    if (offset) {
+        panic("can only map on page granularity");
     }
 
-    pagedir[0] = ((u32)pagetbl) | PE_PRESENT(1) | PE_RW(1) | PE_US(0);
+    u32 pde = pagedir[pdindex];
+    u32 *pt;
+
+    if (pde & PE_PRESENT(1)) {
+        pt = (u32*) (pde & ~0x03FF);
+    } else {
+        pt = pagetbl_alloc[pdindex];
+
+        // clear page table
+        for (size_t pte = 0; pte < PAGETBL_ENT; ++pte) {
+            pt[pte] = 0x00; 
+        }
+
+        pde |= (u32) pt; 
+        pde |= PE_PRESENT(1);
+        pagedir[pdindex] = pde;
+    }
+
+    pt[ptindex] = (size_t)paddr | PE_PRESENT(1) | PE_RW(1) | PE_US(0);
 }
 
 void pgenable(void) {
@@ -76,6 +95,9 @@ void pgenable(void) {
     if (cr0 & PG) {
         panic("paging is already enabled");
     }
+
+    pgclear();
+    pgidentity();
 
     x86_write_cr3((u32) pagedir);
     x86_write_cr0(cr0 | PG);

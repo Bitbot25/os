@@ -32,11 +32,10 @@ void kern32(void) {
     core_add_console(vga_console);
     core_add_console(serial_console);
 
-    kputs_c("OS powering on...\n");
-    kputs_c("Enabling paging...\n");
+    kputs_c("OS powering on...\r\n");
+    kputs_c("Enabling paging...\r\n");
 
-    pgclear();
     pgenable();
 
-    kputs_c("Success..?\n");
+    kputs_c("Success..?\r\n");
 }
