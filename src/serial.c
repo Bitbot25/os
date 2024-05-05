@@ -1,7 +1,7 @@
-#include "serial.h"
-#include "x86.h"
+#include <os/serial.h>
+#include <os/x86.h>
 
-void serial_init(struct serial_dev *out, uint16_t port) {
+void serial_init(struct serial_dev *out, u16 port) {
     outb(port+SRAL_INTR_ENABLE, 0x00);
     outb(port+SRAL_LCR, 0x80); // Unlock BAUD rate divisor
     outb(port+SRAL_BAUD0, 0x03);
@@ -16,8 +16,15 @@ void serial_init(struct serial_dev *out, uint16_t port) {
     out->port = port;
 }
 
-void serial_send(struct serial_dev* dev, uint8_t byte) {
-    uint16_t port = dev->port;
+void serial_send(struct serial_dev* dev, u8 byte) {
+    u16 port = dev->port;
     while ((inb(port+SRAL_LSR) & 0x20) == 0) {}
     outb(port, byte); 
+}
+
+ssize_t serial_console_write(void *dev, u8 *data, size_t len) {
+    for (size_t i = 0; i < len; ++i) {
+        serial_send(dev, data[i]);
+    }
+    return len;
 }

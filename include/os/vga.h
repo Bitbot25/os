@@ -1,5 +1,4 @@
-#include <stdint.h>
-#include <stddef.h>
+#include <os/types.h>
 
 struct vga_text_dim {
     size_t col;
@@ -9,10 +8,10 @@ struct vga_text_dim {
 // TODO: Split vga_text_dev into vga_text_dev and vga_serial_dev.
 // vga_text_dev should not include a cursor, or color information.
 struct vga_text_dev {
-    uint16_t *mem;
+    u16 *mem;
     struct vga_text_dim dim;
     struct vga_text_dim cursor;
-    uint8_t fgbg;
+    u8 fgbg;
 };
 
 enum vga_color {
@@ -36,14 +35,16 @@ enum vga_color {
 
 void vga_text_init(struct vga_text_dev *dev);
 void vga_clear(struct vga_text_dev *dev);
-void vga_write(struct vga_text_dev *dev, uint8_t ch);
-void vga_set(struct vga_text_dev *dev, uint8_t ch, struct vga_text_dim xy);
+void vga_write(struct vga_text_dev *dev, u8 ch);
+void vga_set(struct vga_text_dev *dev, u8 ch, struct vga_text_dim xy);
 void vga_set_color(struct vga_text_dev *dev, enum vga_color fg, enum vga_color bg);
 
-static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
+static inline u8 vga_entry_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
 }
 
-static inline uint16_t vga_entry(uint8_t ch, uint8_t color) {
-	return (uint16_t) ch | (uint16_t) color << 8;
+static inline u16 vga_entry(u8 ch, u8 color) {
+	return (u16) ch | (u16) color << 8;
 }
+
+ssize_t vga_console_write(void *instance, u8 *data, size_t len);

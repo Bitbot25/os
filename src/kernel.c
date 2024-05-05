@@ -1,11 +1,8 @@
-#include "kernel.h"
-
-size_t strlen(const char* str) {
-	size_t len = 0;
-	while (str[len])
-		len++;
-	return len;
-}
+#include <os/kernel.h>
+#include <os/serial.h>
+#include <os/vga.h>
+#include <os/page.h>
+#include <os/libkern.h>
 
 void kern32(void) {
     gdt_init();
@@ -17,10 +14,29 @@ void kern32(void) {
     vga_text_init(&vga);
     vga_clear(&vga);
 
-    const char *startup_msg = "OS powering on..";
+    struct console_dev vga_console = {
+        .instance = &vga,
+        .ops = {
+            .write = vga_console_write,
+        }
+    };
 
-    for (size_t i = 0; i < strlen(startup_msg); ++i) {
-        serial_send(&com1, startup_msg[i]);
-        vga_write(&vga, startup_msg[i]);
-    }
+    struct console_dev serial_console = {
+        .instance = &com1,
+        .ops = {
+            .write = serial_console_write
+        }
+    };
+
+    core_init();
+    core_add_console(vga_console);
+    core_add_console(serial_console);
+
+    kputs_c("OS powering on...\n");
+    kputs_c("Enabling paging...\n");
+
+    pgclear();
+    pgenable();
+
+    kputs_c("Success..?\n");
 }

@@ -1,4 +1,4 @@
-#include "asm.h"
+#include <os/asm.h>
 
 ENTRY(inb)
     // argument in esp+8
@@ -34,4 +34,37 @@ ENTRY(x86_reload_misc_selectors)
     mov %ax, %fs
     mov %ax, %gs
     mov %ax, %ss
+    ret
+
+ENTRY(x86_abort)
+    cli
+.hlt:
+    hlt
+    jmp .hlt
+
+ENTRY(x86_cr0)
+    movl %cr0, %eax
+    ret
+
+ENTRY(x86_write_cr0)
+    mov 4(%esp), %eax
+    mov %eax, %cr0
+    ret
+
+ENTRY(x86_cr3)
+    movl %cr3, %eax
+    ret
+
+ENTRY(x86_write_cr3)
+    mov 4(%esp), %eax
+    mov %eax, %cr3
+    ret
+
+ENTRY(x86_cr4)
+    movl %cr4, %eax
+    ret
+
+ENTRY(x86_write_cr4)
+    mov 4(%esp), %eax
+    mov %eax, %cr4
     ret

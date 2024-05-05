@@ -1,4 +1,4 @@
-#include "asm.h"
+#include <os/asm.h>
 
 .set ALIGN,     1<<0
 .set MEMINFO,   1<<1

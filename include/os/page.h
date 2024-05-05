@@ -1,7 +1,5 @@
-#include <stdint.h>
-#include <stddef.h>
-#include "x86.h"
-#include <assert.h>
+#include <os/types.h>
+#include <os/string.h>
 
 #define SEG_SELECTOR(i) ((i)*8)
 #define SEG_DESCTYPE(x)  ((x) << 0x04) // Descriptor type (0 for system, 1 for code/data)
@@ -45,12 +43,27 @@
                      SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
                      SEG_PRIV(3)     | SEG_DATA_RDWR
 
+#define PE_PRESENT(x) (x)
+#define PE_RW(x) ((x) << 0x1)
+#define PE_US(x) ((x) << 0x2)
+
 // GDTR (Global Descriptor Table Register)
 // This structure must be alive while it's the active GDT.
 struct gdtr {
-    uint16_t limit;
-    uint32_t base;
+    u16 limit;
+    u32 base;
 } __attribute__((packed));
 
-uint64_t make_sdesc(uint32_t base, uint32_t limit, uint16_t flags);
-void gdt_init();
+#define PG 0x80000000
+
+struct pginfo {
+    bool enabled;
+};
+
+void pginfo(struct pginfo *info);
+void pginfo_debug(struct pginfo *info, string_t *buf);
+void pgclear(void);
+void pgenable(void);
+
+u64 make_sdesc(u32 base, u32 limit, u16 flags);
+void gdt_init(void);

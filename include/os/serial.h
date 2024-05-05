@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <os/types.h>
 
 #define PORT_COM1 0x3f8
 #define SRAL_LSR 5 // Line Status Register
@@ -12,8 +12,9 @@
 #define SRAL_BAUD1 SRAL_INTR_ENABLE
 
 struct serial_dev {
-    uint16_t port;
+    u16 port;
 };
 
-void serial_send(struct serial_dev *dev, uint8_t byte);
-void serial_init(struct serial_dev *out, uint16_t port);
+ssize_t serial_console_write(void *dev, u8 *data, size_t len);
+void serial_send(struct serial_dev *dev, u8 byte);
+void serial_init(struct serial_dev *out, u16 port);
