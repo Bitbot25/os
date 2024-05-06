@@ -8,8 +8,8 @@
 #define SRAL_MCR 4 // Modem Control Register
 #define SRAL_INTR_ENABLE 1
 
-#define SRAL_BAUD0 SRAL_DR
-#define SRAL_BAUD1 SRAL_INTR_ENABLE
+#define SRAL_BAUD_LO 0
+#define SRAL_BAUD_HI 1
 
 struct serial_dev {
     u16 port;

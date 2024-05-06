@@ -4,8 +4,8 @@
 void serial_init(struct serial_dev *out, u16 port) {
     outb(port+SRAL_INTR_ENABLE, 0x00);
     outb(port+SRAL_LCR, 0x80); // Unlock BAUD rate divisor
-    outb(port+SRAL_BAUD0, 0x03);
-    outb(port+SRAL_BAUD1, 0x00);
+    outb(port+SRAL_BAUD_LO, 0x03);
+    outb(port+SRAL_BAUD_HI, 0x00);
 
     outb(port+SRAL_LCR, 0x03); // 8 bits, no parity, one stop bit
     outb(port+SRAL_FIFOCR, 0xC7); // Enable FIFO, clear them, with 14-byte threshold
